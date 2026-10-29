@@ -1,0 +1,26 @@
+{
+  "name": "notification-gateway",
+  "version": "1.0.0",
+  "description": "Noitification gateway using Nest Js",
+  "type": "module",
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest build && nest start --watch",
+    "start": "node dist/main.js"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "devDependencies": {
+    "@nestjs/cli": "^12.0.11",
+    "@nestjs/schematics": "^12.0.11",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.5",
+    "typescript": "5.9.2"
+  },
+  "dependencies": {
+    "@nestjs/common": "^12.3.2",
+    "@nestjs/core": "^12.3.2",
+    "@nestjs/platform-express": "^12.3.2",
+    "reflect-metadata": "^0.2.2"
+  }
+}
