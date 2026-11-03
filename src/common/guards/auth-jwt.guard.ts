@@ -3,34 +3,25 @@ import { WsException } from "@nestjs/websockets";
 import { Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
+import { AuthJwtService } from "./auth-jwt.service.js";
 
 @Injectable()
 export class AuthJWTGuard implements CanActivate {
-    constructor() {
+    constructor(private readonly authJwtService: AuthJwtService) {
 
     }
 
     canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-        const request: Socket = context.switchToWs().getClient<Socket>();
-        const authToken: string | undefined = request.handshake.headers.authorization;
-        if (!authToken) {
-            throw new WsException("Unauthorized: No token provided");
-        }
-
-        const jwtToken: string | undefined = authToken.split("Bearer ")[1];
-        
-        if (!jwtToken) {
-            throw new WsException("Unauthorized: Token is required");
-        }
-
         try {
-            const decoded: JwtPayload | string = jwt.verify(jwtToken, "a-string-secret-at-least-256-bits-long", { algorithms: ["HS256"] });
+            const request: Socket = context.switchToWs().getClient<Socket>();
+            const decoded: JwtPayload | string = this.authJwtService.verifyToken(request);
+            if (!decoded) {
+                throw new WsException("Unauthorized: Invalid token");
+            }
             request.data.user = decoded;
             return true;
         } catch (error) {
-            throw new WsException("Unauthorized: Invalid token");
+            throw new WsException("invalid token");
         }
-
-        return false;
     }
 }
