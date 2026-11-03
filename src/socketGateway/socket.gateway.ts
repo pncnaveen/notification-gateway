@@ -4,6 +4,7 @@ import { Server, Socket } from "socket.io";
 import { AuthJWTGuard } from "../common/guards/auth-jwt.guard.js";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { AuthJwtService } from "../common/guards/auth-jwt.service.js";
+import { RedisService } from "../persistance/redis/redis-service.service.js";
 @WebSocketGateway({
     cors: {
         origin: "*"
@@ -13,7 +14,7 @@ import { AuthJwtService } from "../common/guards/auth-jwt.service.js";
 @UseGuards(AuthJWTGuard)
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
 
-    constructor(private readonly authJwtService: AuthJwtService) { }
+    constructor(private readonly authJwtService: AuthJwtService, private readonly redisService: RedisService) { }
 
     @WebSocketServer()
     server!: Server; // socket.io server instance
@@ -35,6 +36,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
                     return next(new WsException("Unauthorized"));
                 }
                 socket.data.user = decoded;
+                await this.redisService.setValue(socket.data.user.name, true);
                 next();
             }
             catch (error) {
@@ -50,6 +52,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     handleDisconnect(socket: Socket, reason?: string) {
         console.log(socket.data.user.name, " disconnected");
+        this.redisService.setValue(socket.data.user.name, false);
     }
 
     // @SubscribeMessage("mrply")

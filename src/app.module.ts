@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { SocketModule } from "./socketGateway/socket.module.js";
-import { AuthJwtModule } from "./common/guards/auth-jwt.module.js";
+import { RedisModule } from "./persistance/redis/redis.module.js";
 
 @Module({
     imports: [SocketModule]
